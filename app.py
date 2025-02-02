@@ -24,7 +24,7 @@ investors_list = [investor.strip() for investor in flat_investors]
 unique_investors = sorted(set(investors_list))
 
 def load_Overall_analysis():
-    st.title("overall Analysis")
+    st.title("Overall Analysis")
 
     # Total Invested Amount
     total = round(df['amount'].sum())
@@ -60,11 +60,11 @@ def load_Overall_analysis():
     # Ensure consistent column names
     temp_df.columns = ['Year', 'Month', 'amount']
     temp_df['x_axis'] = temp_df['Month'].astype(str) + '-' + temp_df['Year'].astype(str)
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(12, 6))
     sns.lineplot(x=temp_df['x_axis'], y=temp_df['amount'], marker='o', ax=ax)
-    ax.set_xlabel("month and respective year", fontsize=12)
+    ax.set_xlabel("Month and Respective Year", fontsize=12)
     ax.set_ylabel("Amount (IN crore)", fontsize=12)
-    ax.set_title('MOM graph investment amount ')
+    ax.set_title('MOM Graph Investment Amount')
     step = max(1, len(temp_df) // 20)  # Every third month to avoid mismatch of 'x axis'
     ax.set_xticks(range(0, len(temp_df), step))
     ax.set_xticklabels(temp_df['x_axis'][::step], rotation=90, fontsize=12)
@@ -74,17 +74,16 @@ def load_Overall_analysis():
 
     # Sector Graph
     st.subheader("Sector Wise Investment")
-    selected_option1 = st.selectbox('Select Type', ['total', 'count'])
+    selected_option1 = st.selectbox('Select Type', ['Total', 'Count'])
     if selected_option1 == 'total':
         temp_df1 = df.groupby('Vertical')['amount'].sum().reset_index().sort_values(by='amount', ascending=False).head(20)
-
     else:
         temp_df1 = df.groupby('Vertical')['amount'].count().reset_index().sort_values(by='amount', ascending=False).head(20)
 
     # Debug: show the temp_df DataFrame
     st.write("DataFrame after groupby operation:")
     st.write(temp_df1)
-    fig1, ax1 = plt.subplots(figsize=(12, 18))
+    fig1, ax1 = plt.subplots(figsize=(12, 6))
 
     st.subheader("Sector Graph")
     sns.barplot(x=temp_df1['Vertical'], y=temp_df1['amount'], ax=ax1, color='skyblue')
@@ -102,24 +101,18 @@ def load_Overall_analysis():
     st.pyplot(fig1)
     plt.close()
 
-    # Type Of Funding
-    st.subheader("Type Of Funding")
-    unique_rounds = df['Round'].unique().tolist()
-    st.write(unique_rounds)
-
     # City Wise Funding
-    st.subheader("City Wise Funding ")
-    selected_option2 = st.selectbox('Select Type', ['Total Investment in respective City(IN cr)', 'count of Investment in respective City'])
+    st.subheader("City Wise Funding")
+    selected_option2 = st.selectbox('Select Type', ['Total Investment in respective City(IN cr)', 'Count of Investment in respective City'])
     if selected_option2 == 'Total Investment in respective City(IN cr)':
         temp_df3 = df.groupby('City')['amount'].sum().reset_index().sort_values(by='amount', ascending=False).head(20)
-
     else:
         temp_df3 = df.groupby('City')['amount'].count().reset_index().sort_values(by='amount', ascending=False).head(20)
 
     st.write("DataFrame after groupby operation:")
     st.write(temp_df3)
     st.subheader("City Wise Funding Graph")
-    fig2, ax2 = plt.subplots(figsize=(12, 18))
+    fig2, ax2 = plt.subplots(figsize=(12, 6))
     sns.barplot(x=temp_df3['City'], y=temp_df3['amount'], ax=ax2, color='skyblue')
     ax2.set_xlabel('City')
     ax2.set_ylabel('Amount')
@@ -136,7 +129,7 @@ def load_Overall_analysis():
 
     # Top Startup Year Wise
     st.subheader("Top Startups")
-    selected_option3 = st.selectbox('Select Type', ['Top Startup in respective Year(IN cr)', 'overall Top startup'])
+    selected_option3 = st.selectbox('Select Type', ['Top Startup in respective Year(IN cr)', 'Overall Top startup'])
     if selected_option3 == 'Top Startup in respective Year(IN cr)':
         temp_df4 = df.groupby(['Year', 'Startup'])['amount'].sum().reset_index().sort_values(by=['Year', 'amount'], ascending=[True, False]).drop_duplicates('Year', keep='first')
     else:
@@ -160,7 +153,7 @@ def load_Overall_analysis():
     heatmap_data_log = np.log1p(heatmap_data)
 
     # Plotting
-    plt.figure(figsize=(12, 10))
+    plt.figure(figsize=(12, 6))
     sns.heatmap(heatmap_data, annot=True, fmt='.0f', cmap='YlOrRd', linewidths=0.5)
     plt.title('Funding Amount Heatmap by Vertical and Round')
     plt.ylabel('Vertical')
@@ -176,7 +169,7 @@ def load_investor_details(investor):
 
     # Last 5 investments of the investor
     last5_df = df[df['Investors'].str.contains(investor)].sort_values('Date', ascending=False).head(5)[['Date', 'Startup', 'Vertical', 'City', 'Round', 'amount']]
-    st.subheader('Most recent investments')
+    st.subheader('Most Recent Investments')
     st.dataframe(last5_df)
 
     col1, col2, col3, col4 = st.columns(4)
@@ -185,50 +178,41 @@ def load_investor_details(investor):
     with col1:
         biggest_investment = df[df['Investors'].str.contains(investor)].groupby('Startup')['amount'].sum().sort_values(ascending=False).head(20)
         st.subheader("Biggest Investments")
-        fig, ax = plt.subplots(figsize=(12, 12))
+        fig, ax = plt.subplots(figsize=(12, 6))
         sns.barplot(x=biggest_investment.index, y=biggest_investment.values, ax=ax, color='skyblue')
         ax.set_xlabel("Startup", fontsize=12)
-        ax.set_ylabel("Total Investment (IN Cr)", fontsize=12)
-        ax.set_title(f"Biggest Investments by {investor}", fontsize=14)
-        plt.xticks(rotation=45, ha='right')
+        ax.set_ylabel("Amount", fontsize=12)
+        plt.xticks(rotation=45, ha='right', fontsize=12)
+        plt.yticks(fontsize=12)
+        ax.set_title('Top 20 Biggest Investments by Investor')
         st.pyplot(fig)
         plt.close()
 
-    # Frequency of investments
+    # Total Amount Invested
     with col2:
-        investment_count = df[df['Investors'].str.contains(investor)].groupby('Year').size()
-        st.subheader("Frequency of Investments")
-        fig1, ax1 = plt.subplots(figsize=(12, 6))
-        sns.lineplot(x=investment_count.index, y=investment_count.values, marker='o', ax=ax1)
-        ax1.set_xlabel('Year', fontsize=12)
-        ax1.set_ylabel('Number of Investments', fontsize=12)
-        ax1.set_title(f"Investment Frequency by {investor}", fontsize=14)
-        st.pyplot(fig1)
-        plt.close()
+        total_investment = df[df['Investors'].str.contains(investor)]['amount'].sum()
+        st.subheader("Total Amount Invested")
+        st.write(f"₹ {total_investment:.2f} CR")
 
-    # Pie chart of funding rounds
+    # Average Investment
     with col3:
-        funding_rounds = df[df['Investors'].str.contains(investor)].groupby('Round')['amount'].sum()
-        st.subheader("Funding Round Distribution")
-        fig2, ax2 = plt.subplots(figsize=(10, 8))
-        funding_rounds.plot.pie(autopct='%1.1f%%', ax=ax2, colors=['#66b3ff', '#99ff99', '#ffcc99', '#ff6666', '#ffb3e6'])
-        ax2.set_ylabel('')
-        ax2.set_title(f"Funding Rounds of {investor}", fontsize=14)
-        st.pyplot(fig2)
-        plt.close()
+        avg_investment = df[df['Investors'].str.contains(investor)]['amount'].mean()
+        st.subheader("Average Investment")
+        st.write(f"₹ {avg_investment:.2f} CR")
 
-    # Most active sectors
+    # Total Number of Investments
     with col4:
-        top_sectors = df[df['Investors'].str.contains(investor)].groupby('Vertical')['amount'].sum().nlargest(5)
-        st.subheader("Most Active Sectors")
-        fig3, ax3 = plt.subplots(figsize=(12, 6))
-        sns.barplot(x=top_sectors.index, y=top_sectors.values, ax=ax3, color='lightgreen')
-        ax3.set_xlabel('Sector', fontsize=12)
-        ax3.set_ylabel('Total Investment (IN Cr)', fontsize=12)
-        ax3.set_title(f"Most Active Sectors of {investor}", fontsize=14)
-        plt.xticks(rotation=45, ha='right')
-        st.pyplot(fig3)
-        plt.close()
+        num_investments = df[df['Investors'].str.contains(investor)]['amount'].count()
+        st.subheader("Total Number of Investments")
+        st.write(f"{num_investments}")
 
+def app():
+    menu = ['Home', 'Investor']
+    choice = st.sidebar.selectbox("Select Option", menu)
+    if choice == 'Home':
+        load_Overall_analysis()
+    else:
+        investor = st.sidebar.selectbox('Select Investor', unique_investors)
+        load_investor_details(investor)
 
 
