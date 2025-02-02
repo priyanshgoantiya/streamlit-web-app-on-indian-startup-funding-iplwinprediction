@@ -10,7 +10,7 @@ import numpy as np
 st.set_page_config(layout='wide', page_title="Startup Analysis")
 
 # Load data
-df = pd.read_csv('startup_funding (2).csv')
+df = pd.read_csv('data/startup_funding (2).csv')
 df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
 df['Year'] = df['Date'].dt.year
 df['Month']=df['Date'].dt.month
